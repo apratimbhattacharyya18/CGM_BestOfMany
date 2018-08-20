@@ -208,8 +208,8 @@ def plot_results(preds):
 	if not os.path.exists(save_dir):
 		os.makedirs(save_dir)
 
+	preds = np.reshape(preds,(x_data_test.shape[0],test_samples,output_seq,2));
 	for i in xrange(200):
-
 		clustered_samples = km_cluster( preds[i,:] );
 		
 		plt.style.use('dark_background')
@@ -221,6 +221,7 @@ def plot_results(preds):
 		axes.set_ylim([0,28])
 		axes.axis('off')
 		plt.plot(x_data_test[i,:,0].tolist(),x_data_test[i,:,1].tolist(),c='w',linewidth=6)
+		plt.plot(x_data_test[i,0,0].tolist(),x_data_test[i,0,1].tolist(),c='r',markersize=30,marker='*');
 		for j in xrange(len(clustered_samples)):
 			samples_in_curr_cluster = np.array(clustered_samples[j]);
 			for k in range(samples_in_curr_cluster.shape[0]):
@@ -236,7 +237,7 @@ def train_loop(plot_results_flag):
 	for epoch in xrange(1,nepochs):
 		
 		print('Epoch --- ' + str(epoch))
-		full_model.fit_generator(my_gen,steps_per_epoch=10,epochs=1,workers=1); #(x_data.shape[0]/batch_size)
+		full_model.fit_generator(my_gen,steps_per_epoch=(x_data.shape[0]/batch_size),epochs=1,workers=1);
 
 		dummy_xy = np.zeros((x_batch_test.shape[0]*test_samples,input_seq + output_seq,2)).astype(np.float32);
 		preds = full_model.predict([x_batch_test,dummy_xy], batch_size = batch_size*test_samples, verbose = 1);
