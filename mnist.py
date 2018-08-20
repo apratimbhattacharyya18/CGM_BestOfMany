@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import scipy.io as sio
 import scipy.misc as smisc
 import scipy.signal as sig
@@ -10,7 +11,7 @@ import math
 import sys
 import random
 import os
-import scipy.stats as stats
+import scipy.cluster
 import argparse
 from tqdm import tqdm
 
@@ -184,6 +185,23 @@ def get_cll(preds):
 def get_cmap(n, name='hsv'):
 	return plt.cm.get_cmap(name, n)
 
+def km_cluster( preds ):
+	n_clusters = 4;
+	_data_X = np.reshape(preds,(preds.shape[0],-1));
+	centroids,_ = scipy.cluster.vq.kmeans(_data_X,n_clusters)
+	idx,_ = scipy.cluster.vq.vq(_data_X,centroids)
+
+	clusters = [[] for _ in xrange(n_clusters)];
+
+	for data_idx in xrange(preds.shape[0]):
+		clusters[idx[data_idx]].append(preds[data_idx,:]);
+
+	cluster_means = [];
+	for c_idx in xrange(n_clusters):
+		cluster_means.append( np.mean( np.array(clusters[c_idx]), axis = 0) );
+
+	return clusters	
+
 def plot_results(preds):
 	save_dir = './preds_bms/';
 
@@ -191,20 +209,22 @@ def plot_results(preds):
 		os.makedirs(save_dir)
 
 	for i in xrange(200):
+
+		clustered_samples = km_cluster( preds[i,:] );
+		
 		plt.style.use('dark_background')
+		mpl.style.use('seaborn')
 		plt.figure(figsize=(8, 8))
 		dpi = 80
 		axes = plt.gca()
 		axes.set_xlim([0,28])
 		axes.set_ylim([0,28])
 		axes.axis('off')
-		plt.plot(x_data_test[i,:,0].tolist(),x_data_test[i,:,1].tolist(),c='w',linewidth=5)
-		plt.plot([x_data_test[i,-1,0]] + y_data_test[i,:,0].tolist(),[x_data_test[i,-1,1]] + y_data_test[i,:,1].tolist(),c='b',linewidth=5)
-		plt.scatter(x_data_test[i,0,0].tolist(),x_data_test[i,0,1].tolist(),c='w',s=100,marker='*');
-		cmap = get_cmap(test_samples)
-		top_5 = np.argpartition(squared_errors[i,:], 5)[0:5];
-		for j in xrange(5):		
-			plt.plot(preds[i,top_5[j],0:50,0].tolist(),preds[i,top_5[j],0:50,1].tolist(),c=cmap(j),linewidth=1)
+		plt.plot(x_data_test[i,:,0].tolist(),x_data_test[i,:,1].tolist(),c='w',linewidth=6)
+		for j in xrange(len(clustered_samples)):
+			samples_in_curr_cluster = np.array(clustered_samples[j]);
+			for k in range(samples_in_curr_cluster.shape[0]):
+				plt.plot(samples_in_curr_cluster[k,:,0].tolist(),samples_in_curr_cluster[k,:,1],c='C'+str(j),linewidth=6)
 		ax=plt.gca()                           
 		ax.set_ylim(ax.get_ylim()[::-1])        
 		ax.xaxis.tick_top()                     

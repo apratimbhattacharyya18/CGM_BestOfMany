@@ -12,9 +12,7 @@ class Choose(Layer):
         return K.in_train_phase(inputs,nx)
 
     def get_config(self):
-        config = {'rate': self.rate,
-                  'noise_shape': self.noise_shape,
-                  'seed': self.seed}
+        config = {}
         base_config = super(Choose, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
