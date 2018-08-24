@@ -41,6 +41,7 @@ def get_kl_test_batch():
 	xy_batch = np.reshape(xy_batch,(xy_batch.shape[0]*1,input_seq + output_seq,2));
 	return xy_batch
 
+# repeats each test example test_samples times
 def get_test_batches():
 	x_batch = x_data_test
 	y_batch = y_data_test
@@ -53,6 +54,7 @@ def get_test_batches():
 	y_batch = np.reshape(y_batch,(tbatch_size*test_samples,output_seq,2));
 	return ( x_batch, y_batch)
 
+# repeats each train example train_samples times
 def get_batch_gen():
 	global x_data, y_data, batch_size, input_seq, output_seq
 	while 1:
@@ -158,7 +160,7 @@ def get_model(input_shape1,input_shape_latent,out_seq):
 	full_model = Model(inputs= [input1,input_latent], outputs=decoder)
 	kl_model = Model(inputs= [input_latent], outputs=[z_mean_var])
 
-	full_model.compile(optimizer = 'adam', loss = bms_loss)
+	full_model.compile(optimizer = Adam(lr=1e-4), loss = bms_loss)
 
 	return ( full_model, kl_model)
 
@@ -264,7 +266,7 @@ latent_dim = 64;
 input_seq = 10;
 
 train_samples = 10;
-test_samples = 50;
+test_samples = 100;
 
 (x_data, y_data) = load_data(True);
 
@@ -278,6 +280,7 @@ my_gen = get_batch_gen();
 kl_test_batch = get_kl_test_batch();
 ( x_batch_test, y_batch_test) = get_test_batches();
 
+# set between 150 - 200 to reproduce results from the paper
 nepochs = 200;
 
 if __name__ == '__main__':
