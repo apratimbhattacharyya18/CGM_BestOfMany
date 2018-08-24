@@ -2,7 +2,7 @@
 This repository contains the code for the paper "Accurate and Diverse Sampling of Sequences based on a “Best of Many” Sample Objective" (https://arxiv.org/abs/1806.07772). 
 Currently only the code corresponding only to the experiments with the MNIST Sequence Dataset is available. Will be expanded in the near future.
 
-(https://i.imgur.com/MEkT0bJ.png)
+![cherry picked examples](https://i.imgur.com/MEkT0bJ.png)
 
 # Requirements
 The code was tested on,
